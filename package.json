@@ -8,11 +8,12 @@
     "node": ">=6.13.0"
   },
   "scripts": {
-    "server": "node server/index.js",
+    "frontserver": "node server/index.js",
     "react-dev": "webpack -d --watch",
     "server-dev": "nodemon server/index.js",
-    "test": "jest --coverage",
-    "build": "webpack -p"
+    "test": "jest --coverage --verbose",
+    "build": "webpack -p",
+    "backserver": "node dbserver/server.js"
   },
   "jest": {
     "modulePaths": [
