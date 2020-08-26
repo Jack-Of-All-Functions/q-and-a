@@ -13,6 +13,7 @@
 
 1. [Usage](#Usage)
 1. [Requirements](#requirements)
+1. [Server](#server)
 1. [Development](#development)
 
 ## Usage
@@ -24,6 +25,18 @@
 
 - Node 6.13.0
 - etc
+
+## Server
+
+> CRUD Routes
+  - GET /qa/questions
+  - GET /qa/moreAnswers
+  - POST /qa/question/add
+  - POST /qa/answer/add
+  - PUT /qa/question/helpful
+  - PUT /qa/question/report
+  - PUT /qa/answer/helpful
+  - PUT /qa/answer/report
 
 ## Development
 
