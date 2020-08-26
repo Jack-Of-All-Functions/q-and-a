@@ -167,25 +167,18 @@ app.put(prefix + '/question/report', (req, res) => {
 
 app.post(prefix + '/question/add', (req, res) => {
   let { product_id, ...questionSub } = req.body;
-  let url = apiUrl + `qa/${product_id}`;
-
-  axios.post(url, questionSub)
-    .then((response) => {
-      res.send(response.data);
-    })
+  // let url = apiUrl + `qa/${product_id}`;
+  // POST /qa/:product_id
+  // Input: product_id, body: body, name, email (questionSub)
+  res.sendStatus(201).end()
 });
 
 app.post(prefix + '/answer/add', (req, res) => {
   let { question_id, ...answerSub } = req.body;
-  let url = apiUrl + `qa/${question_id}/answers`;
-
-  axios.post(url, answerSub)
-    .then((response) => {
-      res.send();
-    })
-    .catch((err) => {
-      console.log(err);
-    })
+  // let url = apiUrl + `qa/${question_id}/answers`;
+  // POST /qa/:question_id/answers
+  // Input: question_id, body: body, name, email, photos
+  res.sendStatus(201).end()
 });
 
 const port = 3002;
