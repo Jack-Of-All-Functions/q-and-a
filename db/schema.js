@@ -9,7 +9,6 @@ const pgSchema = {
     asker_name VARCHAR(50) not NULL,
     question_helpfulness INT not NULL,
     reported BOOLEAN,
-    answers INTEGER []
   );`,
 
   //Answers Table
@@ -34,15 +33,15 @@ const mgSchema = {
   asker_name: String,
   question_helpfulness: Number,
   reported: Boolean,
-  answers: {
+  answers: [{
     answer_id: Number,
     question_id: mongoose.ObjectId,
     answer_body: String,
     answer_date: Date,
     answerer_name: String,
     answer_helpfulness: Number,
-    answer_photos: String
-  }
+    answer_photos: [String]
+  }]
 }
 
 module.exports = {
