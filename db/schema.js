@@ -10,8 +10,6 @@ const pgSchema = {
     asker_name VARCHAR(50) not NULL,
     question_helpfulness INT not NULL,
     reported BOOLEAN,
-    answers INTEGER []
-    // I think what you're trying to do here is make a two way connection between questions and their answers. Having a foreign key in the answers table should be sufficient to create the relationship
   );`,
 
   //Answers Table
@@ -40,8 +38,7 @@ const mgSchema = {
   asker_name: String,
   question_helpfulness: Number,
   reported: Boolean,
-  answers: {
-  // I'm thinking this would need to be an array of objects -- [{ answer_id: Number, etc... }]
+  answers: [{
     answer_id: Number,
     // I could see this helping with clarity but I would consider taking "answer_" off here as well since it should be clear since they are in the "answers" property. Either way is fine here I think
     question_id: mongoose.ObjectId,
@@ -49,9 +46,8 @@ const mgSchema = {
     answer_date: Date,
     answerer_name: String,
     answer_helpfulness: Number,
-    answer_photos: String
-    // array of strings here? [String] maybe (not 100% sure on that syntax)
-  }
+    answer_photos: [String]
+  }]
 }
 
 module.exports = {

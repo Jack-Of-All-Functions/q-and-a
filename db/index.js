@@ -1,6 +1,11 @@
 const { Pool } = require('pg')
+const config = require('./config.json');
 
-const pool = new Pool()
+const pool = new Pool(config)
+
+// Sample use:
+// app.get('/:id', (req, res, next) => {
+  // db.query('SELECT * FROM users WHERE id = $1', [req.params.id], (err, res) => {
 
 module.exports = {
   query: (text, params, callback) => {
