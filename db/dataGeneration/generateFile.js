@@ -3,7 +3,7 @@ const generate = require('./generateData.js');
 
 let dataGen = {}
 
-for (let i = 1; i < 2; i++) {
+for (let i = 1; i < 1000001; i++) {
   dataGen[i] = generate.generateQuestionEntry()
 }
 

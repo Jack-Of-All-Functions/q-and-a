@@ -11,6 +11,17 @@ const createTable = async (query) => {
   client.release()
 }
 
+// testInsert(testQuery)
+// console.log(keys)
+// console.log(values)
+// console.log(testQuery)
+// console.log('config', config)
+// console.log('schema', schema)
+// createTable(schema.pgSchema.questions)
+// createTable(schema.pgSchema.answers)
+
+// Testing
+
 // let testParams = {
 //   product_id: 10,
 //   question_body: 'Est ea fugiat dolores.',
@@ -37,12 +48,3 @@ const createTable = async (query) => {
 //   await console.log('query complete')
 //   client.release()
 // }
-
-// testInsert(testQuery)
-// console.log(keys)
-// console.log(values)
-// console.log(testQuery)
-// console.log('config', config)
-// console.log('schema', schema)
-createTable(schema.pgSchema.questions)
-createTable(schema.pgSchema.answers)
