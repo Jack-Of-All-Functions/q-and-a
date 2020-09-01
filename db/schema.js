@@ -19,6 +19,7 @@ const pgSchema = {
     date VARCHAR(100) not NULL,
     answerer_name VARCHAR(100) not NULL,
     helpfulness INT not NULL,
+    reported BOOLEAN,
     photos TEXT [],
     FOREIGN KEY (question_id)
     REFERENCES questions (question_id)

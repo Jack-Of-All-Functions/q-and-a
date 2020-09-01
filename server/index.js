@@ -33,7 +33,7 @@ const dateConvert = (date) => {
   return dateArray[3] + '-' + monthObj[dateArray[1]] + '-' + dateArray[2]
 }
 
-router.get(prefix + '/questions', (req, res) => {
+app.get(prefix + '/questions', (req, res) => {
   let { qLimit, aLimit, product_id } = req.query;
   // GET /qa/:product_id
 
@@ -52,7 +52,7 @@ router.get(prefix + '/questions', (req, res) => {
     // Get answers for the questions
     let answerQuery = ``
     allQuestions.forEach((object, i) => {
-      answerQuery += `SELECT question_id, answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = ${object.question_id}`
+      answerQuery += `SELECT question_id, answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = ${object.question_id} AND reported = false`
       if (response.rows[i + 1] !== undefined) {
         answerQuery += ` UNION `
       } else {
@@ -71,21 +71,29 @@ router.get(prefix + '/questions', (req, res) => {
       // Filter through the answers and match them with the corresponding questions
       allQuestions.forEach(question => {
         // Convert date to correct format
-        question.question_date = dateConvert(question.question_date)
+        if (question.question_date.length !== 24) {
+          question.question_date = dateConvert(question.question_date)
+        }
         response.rows.forEach(answer => {
           // Convert date to correct format
-          if (answer.date.length > 10) {
+          if (answer.date.length > 10 && answer.date.length !== 24) {
             answer.date = dateConvert(answer.date)
+          }
+          if (answer.id === undefined) {
+            answer.id = answer.answer_id
           }
           // Match the questions to answers
           if (question.question_id === answer.question_id) {
             if (question.answers === undefined) {
-              question.answers = [answer]
+              question.answers = {[answer.answer_id]: answer}
             } else {
-              question.answers.push(answer)
+              question.answers[answer.id] = answer
             }
           }
         })
+        if (question.answers === undefined) {
+          question.answers = {}
+        }
       })
       // limits amount of questions displayed
       let questions = allQuestions.slice(0, qLimit);
@@ -94,11 +102,10 @@ router.get(prefix + '/questions', (req, res) => {
   })
 });
 
-router.get(prefix + '/moreAnswers', (req, res) => {
+app.get(prefix + '/moreAnswers', (req, res) => {
   const { question_id } = req.query;
-  const url = apiUrl + `qa/${question_id}/answers`;
 
-  let currentQuery = `SELECT answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = $1`
+  let currentQuery = `SELECT answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = $1 AND reported = false`
   // console.log('Current question_id', question_id)
 
   db.query(currentQuery, [question_id], (err, response) => {
@@ -108,66 +115,101 @@ router.get(prefix + '/moreAnswers', (req, res) => {
     // DO THINGS WITH THE RESPONSE HERE
     let a = response.rows
     a.forEach(answer => {
-      answer.date = dateConvert(answer.date)
+      if (answer.date.length > 10 && answer.date.length !== 24) {
+        answer.date = dateConvert(answer.date)
+      }
+      answer.id = answer.answer_id
     })
-    let answers = {
-      question: question_id,
-      results: a
-    }
-    // let isMoreAnswers = false;
+    let answers = a
+    let isMoreAnswers = false;
     // let result = { data: { answers, isMoreAnswers: false }}
-    res.send({ answers, isMoreAnswers: false });
+    res.send({ answers, isMoreAnswers});
   })
 });
 
-router.put(prefix + '/answer/helpful', (req, res) => {
+app.put(prefix + '/answer/helpful', (req, res) => {
   let answer_id = req.body.answer_id;
-  // let url = apiUrl + `qa/answer/${answer_id}/helpful`;
-  // PUT /qa/answer/:answer_id/helpful
-  // Updates an answer to show it was found helpful.
-  res.sendStatus(204).end();
+
+  let currentQuery = `UPDATE answers SET helpfulness = helpfulness + 1 WHERE answer_id = ${answer_id}`
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(204).end();
+  })
 });
 
-router.put(prefix + '/answer/report', (req, res) => {
+app.put(prefix + '/answer/report', (req, res) => {
   let answer_id = req.body.answer_id;
-  // let url = apiUrl + `qa/answer/${answer_id}/report`;
-  // PUT /qa/answer/:answer_id/report
-  // Updates an answer to show it has been reported. Note, this action does not delete the answer,
-  // but the answer will not be returned in the above GET request.
-  res.sendStatus(204).end();
+
+  let currentQuery = `UPDATE answers SET reported = true WHERE answer_id = ${answer_id}`
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(204).end();
+  })
 });
 
-router.put(prefix + '/question/helpful', (req, res) => {
+app.put(prefix + '/question/helpful', (req, res) => {
   let question_id = req.body.question_id;
-  // let url = apiUrl + `qa/question/${question_id}/helpful`;
-  // PUT /qa/question/:question_id/helpful
-  // Updates a question to show it was found helpful.
-  res.sendStatus(204).end()
+
+  let currentQuery = `UPDATE questions SET question_helpfulness = question_helpfulness + 1 WHERE question_id = ${question_id}`
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(204).end()
+  })
 });
 
-router.put(prefix + '/question/report', (req, res) => {
+app.put(prefix + '/question/report', (req, res) => {
   let question_id = req.body.question_id;
-  // let url = apiUrl + `qa/question/${question_id}/report`;
-  // PUT /qa/question/:question_id/report
-  // Updates a question to show it was reported. Note, this action does not delete the question,
-  // but the question will not be returned in the above GET request.
-  res.sendStatus(204).end()
+
+  let currentQuery = `UPDATE questions SET reported = true WHERE question_id = ${question_id}`
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(204).end()
+  })
 });
 
-router.post(prefix + '/question/add', (req, res) => {
+app.post(prefix + '/question/add', (req, res) => {
   let { product_id, ...questionSub } = req.body;
-  // let url = apiUrl + `qa/${product_id}`;
-  // POST /qa/:product_id
-  // Input: product_id, body: body, name, email (questionSub)
-  res.sendStatus(201).end()
+  let timestamp = new Date().toJSON()
+  let questionObj = {question_body: questionSub.body, question_date: timestamp, asker_name: questionSub.name, question_helpfulness: 0, reported: false}
+
+  let currentQuery = `INSERT INTO questions(product_id, question_body, question_date, asker_name, question_helpfulness, reported) VALUES (${product_id}, '${questionObj.question_body}', '${questionObj.question_date}', '${questionObj.asker_name}', ${questionObj.question_helpfulness}, ${questionObj.reported})`
+
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(201).end()
+  })
 });
 
-router.post(prefix + '/answer/add', (req, res) => {
+app.post(prefix + '/answer/add', (req, res) => {
   let { question_id, ...answerSub } = req.body;
-  // let url = apiUrl + `qa/${question_id}/answers`;
-  // POST /qa/:question_id/answers
-  // Input: question_id, body: body, name, email, photos
-  res.sendStatus(201).end()
+  let timestamp = new Date().toJSON()
+  let photos = ``
+  answerSub.photos.forEach((photo, i, array) => {
+    photos += `"${photo}"`
+    if (array[i + 1] !== undefined) {
+      photos += ', '
+    }
+  })
+  let answerObj = {body: answerSub.body, date: timestamp, answerer_name: answerSub.name, helpfulness: 0, photos: photos, reported: false}
+
+  let currentQuery = `INSERT INTO answers(question_id, body, date, answerer_name, helpfulness, photos, reported) VALUES (${question_id}, '${answerObj.body}', '${answerObj.date}', '${answerObj.answerer_name}', ${answerObj.helpfulness}, '{${answerObj.photos}}', ${answerObj.reported})`
+
+  db.query(currentQuery, null, (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    res.sendStatus(201).end()
+  })
 });
 
 const port = 3002;

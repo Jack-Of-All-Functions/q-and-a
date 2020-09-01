@@ -48,6 +48,7 @@ let generateAnswerEntry = () => {
     date: `${randomDate()}`,
     answerer_name: randomName(),
     helpfulness: randomNum(10),
+    reported: randomBool(),
     photos: randomImg()
   }
 }

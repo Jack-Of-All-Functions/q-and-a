@@ -7,4 +7,4 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './components/App.jsx';
 
 // Will have to somehow get product_id and product_name from proxy request to here
-ReactDom.render(<App questions={[]} product_id={1} product_name={'YEasy 350'}/>, document.getElementById('qaModule'));
+ReactDom.render(<App questions={[]} product_id={2} product_name={'YEasy 350'}/>, document.getElementById('qaModule'));
