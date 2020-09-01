@@ -66,7 +66,6 @@ app.get(prefix + '/questions', (req, res) => {
       if (err) {
         console.log(err)
       }
-      // console.log('Response from the answerQuery', response.rows)
 
       // Filter through the answers and match them with the corresponding questions
       allQuestions.forEach(question => {
@@ -106,13 +105,11 @@ app.get(prefix + '/moreAnswers', (req, res) => {
   const { question_id } = req.query;
 
   let currentQuery = `SELECT answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = $1 AND reported = false`
-  // console.log('Current question_id', question_id)
 
   db.query(currentQuery, [question_id], (err, response) => {
     if (err) {
       console.log(err)
     }
-    // DO THINGS WITH THE RESPONSE HERE
     let a = response.rows
     a.forEach(answer => {
       if (answer.date.length > 10 && answer.date.length !== 24) {
@@ -122,7 +119,6 @@ app.get(prefix + '/moreAnswers', (req, res) => {
     })
     let answers = a
     let isMoreAnswers = false;
-    // let result = { data: { answers, isMoreAnswers: false }}
     res.send({ answers, isMoreAnswers});
   })
 });
