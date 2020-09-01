@@ -44,11 +44,11 @@ let generateQuestionEntry = () => {
 let generateAnswerEntry = () => {
   return {
     question_id: randomNum(1000000),
-    answer_body: randomBody(),
-    answer_date: `${randomDate()}`,
+    body: randomBody(),
+    date: `${randomDate()}`,
     answerer_name: randomName(),
-    answer_helpfulness: randomNum(10),
-    answer_photos: randomImg()
+    helpfulness: randomNum(10),
+    photos: randomImg()
   }
 }
 

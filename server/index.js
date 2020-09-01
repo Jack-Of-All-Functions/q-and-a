@@ -1,10 +1,15 @@
 const express = require("express");
+const Router = require('express-promise-router');
 const axios = require("axios");
 const path = require("path");
+const db = require('../db/db.js');
 const apiUrl = 'http://52.26.193.201:3000/';
 const prefix = '/qa';
 
-let app = express();
+const app = express();
+const router = Router();
+
+app.use(router);
 
 app.use(express.static('public'));
 
@@ -21,117 +26,101 @@ app.get('/qaModule', (req, res) => {
   res.sendFile(path.resolve(__dirname + '/../public/dist/bundle.js'));
 });
 
-app.get(prefix + '/questions', (req, res) => {
+// function to convert date
+const dateConvert = (date) => {
+  let dateArray = date.split(' ')
+  let monthObj = {Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'}
+  return dateArray[3] + '-' + monthObj[dateArray[1]] + '-' + dateArray[2]
+}
+
+router.get(prefix + '/questions', (req, res) => {
   let { qLimit, aLimit, product_id } = req.query;
   // GET /qa/:product_id
-  // Takes in product_id, page, count?
-  // Outputs response
 
-  let response = {
-    "product_id": "5",
-    "results": [{
-      "question_id": 37,
-      "question_body": "Why is this product cheaper here than other sites?",
-      "question_date": "2018-10-18T00:00:00.000Z",
-      "asker_name": "williamsmith",
-      "question_helpfulness": 4,
-      "reported": 0,
-      "answers": {
-        68: {
-          "id": 68,
-          "body": "We are selling it here without any markup from the middleman!",
-          "date": "2018-08-18T00:00:00.000Z",
-          "answerer_name": "Seller",
-          "helpfulness": 4,
-          "photos": []
-        }
+  let currentQuery = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness FROM questions WHERE product_id = $1 AND reported = false'
+  console.log('Current product_id', product_id)
+
+  db.query(currentQuery, [product_id], (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+
+    let allQuestions = response.rows
+    // checks if there is more than qLimit questions
+    let isMoreQuestions = allQuestions.length > qLimit;
+
+    // Get answers for the questions
+    let answerQuery = ``
+    allQuestions.forEach((object, i) => {
+      answerQuery += `SELECT question_id, answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = ${object.question_id}`
+      if (response.rows[i + 1] !== undefined) {
+        answerQuery += ` UNION `
+      } else {
+        answerQuery += `;`
       }
-    },
-    {
-      "question_id": 38,
-      "question_body": "How long does it last?",
-      "question_date": "2019-06-28T00:00:00.000Z",
-      "asker_name": "funnygirl",
-      "question_helpfulness": 2,
-      "reported": 0,
-      "answers": {
-        70: {
-          "id": 70,
-          "body": "Some of the seams started splitting the first time I wore it!",
-          "date": "2019-11-28T00:00:00.000Z",
-          "answerer_name": "sillyguy",
-          "helpfulness": 6,
-          "photos": [],
-        },
-        78: {
-          "id": 78,
-          "body": "9 lives",
-          "date": "2019-11-12T00:00:00.000Z",
-          "answerer_name": "iluvdogz",
-          "helpfulness": 31,
-          "photos": [],
-        }
+    })
+    // console.log('Current answerQuery', answerQuery)
+
+    // Query for the answers
+    db.query(answerQuery, null, (err, response) => {
+      if (err) {
+        console.log(err)
       }
-    },
-    ]
-  }
+      // console.log('Response from the answerQuery', response.rows)
 
-
-  let allQuestions = response.results
-  // checks if there is more than qLimit questions
-  let isMoreQuestions = allQuestions.length > qLimit;
-  // limits amount of questions displayed
-  let questions = allQuestions.slice(0, qLimit);
-  res.send({ questions, isMoreQuestions });
-  // res.send( response.results, false )
+      // Filter through the answers and match them with the corresponding questions
+      allQuestions.forEach(question => {
+        // Convert date to correct format
+        question.question_date = dateConvert(question.question_date)
+        response.rows.forEach(answer => {
+          // Convert date to correct format
+          if (answer.date.length > 10) {
+            answer.date = dateConvert(answer.date)
+          }
+          // Match the questions to answers
+          if (question.question_id === answer.question_id) {
+            if (question.answers === undefined) {
+              question.answers = [answer]
+            } else {
+              question.answers.push(answer)
+            }
+          }
+        })
+      })
+      // limits amount of questions displayed
+      let questions = allQuestions.slice(0, qLimit);
+      res.send({ questions, isMoreQuestions });
+    })
+  })
 });
 
-app.get(prefix + '/moreAnswers', (req, res) => {
-  let { question_id } = req.query;
-  let url = apiUrl + `qa/${question_id}/answers`;
-  // GET /qa/:question_id/answers
-  // Input question_id, page, count
-  // Output response
+router.get(prefix + '/moreAnswers', (req, res) => {
+  const { question_id } = req.query;
+  const url = apiUrl + `qa/${question_id}/answers`;
 
-  let response = {
-    "question": "1",
-    "page": 0,
-    "count": 5,
-    "results": [
-      {
-        "answer_id": 8,
-        "body": "What a great question!",
-        "date": "2018-01-04T00:00:00.000Z",
-        "answerer_name": "metslover",
-        "helpfulness": 8,
-        "photos": [],
-      },
-      {
-        "answer_id": 5,
-        "body": "Something pretty durable but I can't be sure",
-        "date": "2018-01-04T00:00:00.000Z",
-        "answerer_name": "metslover",
-        "helpfulness": 5,
-        "photos": [{
-          "id": 1,
-          "url": "urlplaceholder/answer_5_photo_number_1.jpg"
-        },
-        {
-          "id": 2,
-          "url": "urlplaceholder/answer_5_photo_number_2.jpg"
-        },
-        ]
-      },
-    ]
-  }
+  let currentQuery = `SELECT answer_id, body, date, answerer_name, helpfulness, photos FROM answers WHERE question_id = $1`
+  // console.log('Current question_id', question_id)
 
-  let answers = response.results;
-  let isMoreAnswers = false;
-  res.send({ answers, isMoreAnswers });
-  // res.send( response.results, false )
+  db.query(currentQuery, [question_id], (err, response) => {
+    if (err) {
+      console.log(err)
+    }
+    // DO THINGS WITH THE RESPONSE HERE
+    let a = response.rows
+    a.forEach(answer => {
+      answer.date = dateConvert(answer.date)
+    })
+    let answers = {
+      question: question_id,
+      results: a
+    }
+    // let isMoreAnswers = false;
+    // let result = { data: { answers, isMoreAnswers: false }}
+    res.send({ answers, isMoreAnswers: false });
+  })
 });
 
-app.put(prefix + '/answer/helpful', (req, res) => {
+router.put(prefix + '/answer/helpful', (req, res) => {
   let answer_id = req.body.answer_id;
   // let url = apiUrl + `qa/answer/${answer_id}/helpful`;
   // PUT /qa/answer/:answer_id/helpful
@@ -139,7 +128,7 @@ app.put(prefix + '/answer/helpful', (req, res) => {
   res.sendStatus(204).end();
 });
 
-app.put(prefix + '/answer/report', (req, res) => {
+router.put(prefix + '/answer/report', (req, res) => {
   let answer_id = req.body.answer_id;
   // let url = apiUrl + `qa/answer/${answer_id}/report`;
   // PUT /qa/answer/:answer_id/report
@@ -148,7 +137,7 @@ app.put(prefix + '/answer/report', (req, res) => {
   res.sendStatus(204).end();
 });
 
-app.put(prefix + '/question/helpful', (req, res) => {
+router.put(prefix + '/question/helpful', (req, res) => {
   let question_id = req.body.question_id;
   // let url = apiUrl + `qa/question/${question_id}/helpful`;
   // PUT /qa/question/:question_id/helpful
@@ -156,7 +145,7 @@ app.put(prefix + '/question/helpful', (req, res) => {
   res.sendStatus(204).end()
 });
 
-app.put(prefix + '/question/report', (req, res) => {
+router.put(prefix + '/question/report', (req, res) => {
   let question_id = req.body.question_id;
   // let url = apiUrl + `qa/question/${question_id}/report`;
   // PUT /qa/question/:question_id/report
@@ -165,7 +154,7 @@ app.put(prefix + '/question/report', (req, res) => {
   res.sendStatus(204).end()
 });
 
-app.post(prefix + '/question/add', (req, res) => {
+router.post(prefix + '/question/add', (req, res) => {
   let { product_id, ...questionSub } = req.body;
   // let url = apiUrl + `qa/${product_id}`;
   // POST /qa/:product_id
@@ -173,7 +162,7 @@ app.post(prefix + '/question/add', (req, res) => {
   res.sendStatus(201).end()
 });
 
-app.post(prefix + '/answer/add', (req, res) => {
+router.post(prefix + '/answer/add', (req, res) => {
   let { question_id, ...answerSub } = req.body;
   // let url = apiUrl + `qa/${question_id}/answers`;
   // POST /qa/:question_id/answers

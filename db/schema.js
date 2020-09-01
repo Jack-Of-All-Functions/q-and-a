@@ -15,11 +15,11 @@ const pgSchema = {
   answers: `CREATE TABLE IF NOT EXISTS answers (
     answer_id SERIAL Primary Key,
     question_id INT not NULL,
-    answer_body VARCHAR(255) not NULL,
-    answer_date VARCHAR(100) not NULL,
+    body VARCHAR(255) not NULL,
+    date VARCHAR(100) not NULL,
     answerer_name VARCHAR(100) not NULL,
-    answer_helpfulness INT not NULL,
-    answer_photos TEXT [],
+    helpfulness INT not NULL,
+    photos TEXT [],
     FOREIGN KEY (question_id)
     REFERENCES questions (question_id)
   );`
