@@ -24,11 +24,7 @@ let insertFunction = async (query, callback, time, i) => {
   const client = await pool.connect()
   await client.query(query)
   if (i % 100000 === 0) {
-    console.log('Current i: ', i)
-    console.log(callback(time))
-  }
-  if (i === 1000000) {
-    console.log('Inserted 1,000,000')
+    console.log('Inserted', i)
     callback(time)
   }
   client.release()
@@ -67,7 +63,7 @@ let insertData = (data, callback, callback2, timeStart) => {
   }
 }
 
-getData('./db/dataGeneration/data/1MAnswers2.json', (start) => {
+getData('./db/dataGeneration/data/1MAnswers20.json', (start) => {
   let end = Date.now()
   let elapsed = (end - start) / 1000
   console.log(`Time elapsed ${elapsed} seconds`)

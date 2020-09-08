@@ -43,7 +43,7 @@ let generateQuestionEntry = () => {
 
 let generateAnswerEntry = () => {
   return {
-    question_id: randomNum(1000000),
+    question_id: randomNum(10000000),
     body: randomBody(),
     date: `${randomDate()}`,
     answerer_name: randomName(),

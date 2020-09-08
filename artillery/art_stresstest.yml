@@ -1,0 +1,99 @@
+config:
+  target: "http://localhost:3002"
+  processor: "./artHelpers.js"
+  phases:
+    - duration: 10
+      arrivalRate: 5
+      rampTo: 10
+      name: Warm up
+    - duration: 30
+      arrivalRate: 10
+      name: 30s sustained load at 10rps
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 100
+      name: Ramp to 100
+    - duration: 30
+      arrivalRate: 100
+      name: 30s sustained load at 100rps
+    - duration: 30
+      arrivalRate: 100
+      rampTo: 200
+      name: Ramp to 200rps
+    - duration: 30
+      arrivalRate: 200
+      name: 30s sustained load at 200rps
+    - duration: 30
+      arrivalRate: 200
+      rampTo: 400
+      name: Ramp to 400rps
+    - duration: 30
+      arrivalRate: 400
+      name: 30s sustained load at 400rps
+scenarios:
+  # We define one scenario:
+  - name: "Arrive"
+    weight: 8
+    flow:
+      - function: "getProductId"
+      - get:
+          url: "/qa/questions?product_id={{ productId }}"
+
+  - name: "Mark an answer helpful"
+    weight: 1
+    flow:
+      - function: "getAnswerId"
+      - put:
+          url: "/qa/answer/helpful?answer_id={{ answerId }}"
+
+  - name: "Report an answer"
+    weight: 1
+    flow:
+      - function: "getAnswerId"
+      - put:
+          url: "/qa/answer/report?answer_id={{ answerId }}"
+
+  - name: "Mark a question helpful"
+    weight: 1
+    flow:
+      - function: "getQuestionId"
+      - put:
+          url: "/qa/question/helpful?question_id={{ questionId }}"
+
+  - name: "Report a question"
+    weight: 1
+    flow:
+      - function: "getQuestionId"
+      - put:
+          url: "/qa/question/report?question_id={{ questionId }}"
+
+  - name: "Add a question"
+    weight: 1
+    flow:
+      - function: "getProductId"
+      - post:
+          url: "/qa/question/add?product_id={{ productId }}"
+          beforeRequest: "prepQuestionPost"
+          json:
+            product_id: ''
+            question_body: ''
+            question_date: ''
+            asker_name: ''
+            question_helpfulness: ''
+            reported: ''
+
+  - name: "Add an answer"
+    weight: 1
+    flow:
+      - function: "getQuestionId"
+      - post:
+          url: "/qa/answer/add?question_id={{ questionId }}"
+          beforeRequest: "prepAnswerPost"
+          json:
+            question_id: ''
+            body: ''
+            date: ''
+            answerer_name: ''
+            helpfulness: ''
+            reported: ''
+            photos: ''

@@ -16,10 +16,10 @@ queryDb(schema.pgSchema.answers)
 
 module.exports = {
   query: (text, params, callback) => {
-    let start = Date.now()
+    // let start = Date.now()
     return pool.query(text, params, (err, res) => {
-      let timeTaken = Date.now() - start
-      console.log('executed query', { text, timeTaken })
+      // let timeTaken = Date.now() - start
+      // console.log('executed query', { text, timeTaken })
       callback(err, res)
     })
   }

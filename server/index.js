@@ -38,7 +38,7 @@ app.get(prefix + '/questions', (req, res) => {
   // GET /qa/:product_id
 
   let currentQuery = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness FROM questions WHERE product_id = $1 AND reported = false'
-  console.log('Current product_id', product_id)
+  // console.log('Current product_id', product_id)
 
   db.query(currentQuery, [product_id], (err, response) => {
     if (err) {
