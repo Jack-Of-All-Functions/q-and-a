@@ -1,0 +1,7 @@
+{
+  "user": "postgres",
+  "host": "ec2-3-15-45-17.us-east-2.compute.amazonaws.com",
+  "database": "qanda",
+  "password": "",
+  "port": "5432"
+}

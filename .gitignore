@@ -25,5 +25,5 @@ build/
 dist/
 
 # DB Stuff
-db/config.json
-db/dataGeneration/data
+db/configLOCAL.json
+db/dataGeneration/dataLOCAL
