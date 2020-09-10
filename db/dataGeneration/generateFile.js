@@ -11,13 +11,15 @@ let generateAnswers = (number) => {
 
   let data = JSON.stringify(dataGen)
 
-  fs.writeFile(`db/dataGeneration/data/answers/100KAnswer${number}.json`, data, (err) => {
-    if (err) {
-      console.log('There was an error writing the file')
-    } else {
-      console.log('The file was written successfully')
-    }
-  })
+  if (fs.existsSync(`db/dataGeneration/data/answers/100KAnswer${number}.json`) === false) {
+    fs.writeFile(`db/dataGeneration/data/answers/100KAnswer${number}.json`, data, (err) => {
+      if (err) {
+        console.log('There was an error writing the file')
+      } else {
+        console.log('The file was written successfully')
+      }
+    })
+  }
 }
 
 let generateQuestions = (number) => {
@@ -29,13 +31,15 @@ let generateQuestions = (number) => {
 
   let data = JSON.stringify(dataGen)
 
-  fs.writeFile(`db/dataGeneration/data/questions/100KQuestions${number}.json`, data, (err) => {
-    if (err) {
-      console.log('There was an error writing the file')
-    } else {
-      console.log('The file was written successfully')
-    }
-  })
+  if (fs.existsSync(`db/dataGeneration/data/questions/100KQuestions${number}.json`) === false) {
+    fs.writeFile(`db/dataGeneration/data/questions/100KQuestions${number}.json`, data, (err) => {
+      if (err) {
+        console.log('There was an error writing the file')
+      } else {
+        console.log('The file was written successfully')
+      }
+    })
+  }
 }
 
 module.exports = {
