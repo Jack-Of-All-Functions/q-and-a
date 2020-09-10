@@ -82,7 +82,7 @@ let insertQuestions = async () => {
     await getData(`./db/dataGeneration/data/questions/100KQuestions${i}.json`, (start) => {
       let end = Date.now()
       let elapsed = (end - start) / 1000
-      console.log(`Inserted 100KAnswer${i}.json in ${elapsed} seconds`)
+      console.log(`Inserted 100KQuestions${i}.json in ${elapsed} seconds`)
     })
   }
 }
