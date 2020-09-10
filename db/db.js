@@ -12,7 +12,11 @@ const queryDb = async (query) => {
 }
 
 queryDb(schema.pgSchema.questions)
+
 queryDb(schema.pgSchema.answers)
+
+queryDb('create index idx_questions_qid on questions(product_id')
+queryDb('create index idx_answers_qid on answers(question_id')
 
 module.exports = {
   query: (text, params, callback) => {
