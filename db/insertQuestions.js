@@ -26,7 +26,7 @@ let getData = (file, callback) => {
 let insertFunction = async (query, callback, time, i) => {
   const client = await pool.connect()
   await client.query(query)
-  if (i % 100000 === 0) {
+  if (i % 25000 === 0) {
     console.log('Inserted', i)
   }
   callback(time)
@@ -42,7 +42,7 @@ let insertData = async (data, callback, callback2, timeStart) => {
 
   let position = 1
 
-  for (let i = 1; i < 100001; i++) {
+  for (let i = 1; i < 25001; i++) {
     let currentDataInsert = data[i]
     // console.log('current data insert', currentDataInsert)
     let values = ``
@@ -78,11 +78,11 @@ let insertData = async (data, callback, callback2, timeStart) => {
 }
 
 let insertQuestions = async () => {
-  for (let i = 1; i < 101; i++) {
-    await getData(`./db/dataGeneration/data/questions/100KQuestions${i}.json`, (start) => {
+  for (let i = 1; i < 401; i++) {
+    await getData(`./db/dataGeneration/data/questions/25KQuestions${i}.json`, (start) => {
       let end = Date.now()
       let elapsed = (end - start) / 1000
-      console.log(`Inserted 100KQuestions${i}.json in ${elapsed} seconds`)
+      console.log(`Inserted 25KQuestions${i}.json in ${elapsed} seconds`)
     })
   }
 }

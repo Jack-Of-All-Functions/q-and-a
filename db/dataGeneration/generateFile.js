@@ -5,14 +5,14 @@ const generate = require('./generateData.js');
 let generateAnswers = (number) => {
   let dataGen = {}
 
-  for (let i = 1; i < 100001; i++) {
+  for (let i = 1; i < 25001; i++) {
     dataGen[i] = generate.generateAnswerEntry()
   }
 
   let data = JSON.stringify(dataGen)
 
-  if (fs.existsSync(`db/dataGeneration/data/answers/100KAnswer${number}.json`) === false) {
-    fs.writeFile(`db/dataGeneration/data/answers/100KAnswer${number}.json`, data, (err) => {
+  if (fs.existsSync(`db/dataGeneration/data/answers/25KAnswer${number}.json`) === false) {
+    fs.writeFile(`db/dataGeneration/data/answers/25KAnswer${number}.json`, data, (err) => {
       if (err) {
         console.log('There was an error writing the file')
       } else {
@@ -25,14 +25,14 @@ let generateAnswers = (number) => {
 let generateQuestions = (number) => {
   let dataGen = {}
 
-  for (let i = 1; i < 100001; i++) {
+  for (let i = 1; i < 25001; i++) {
     dataGen[i] = generate.generateQuestionEntry()
   }
 
   let data = JSON.stringify(dataGen)
 
-  if (fs.existsSync(`db/dataGeneration/data/questions/100KQuestions${number}.json`) === false) {
-    fs.writeFile(`db/dataGeneration/data/questions/100KQuestions${number}.json`, data, (err) => {
+  if (fs.existsSync(`db/dataGeneration/data/questions/25KQuestions${number}.json`) === false) {
+    fs.writeFile(`db/dataGeneration/data/questions/25KQuestions${number}.json`, data, (err) => {
       if (err) {
         console.log('There was an error writing the file')
       } else {
