@@ -2,6 +2,6 @@
   "user": "postgres",
   "host": "localhost",
   "database": "qanda",
-  "password": "",
+  "password": "password",
   "port": "5432"
 }
